@@ -238,7 +238,10 @@ fi
 # extract CMSSW version
 if [ -e ${CMSSWDIR} ]; then
   CMSSWVERM=`echo ${CMSSWDIR} | awk 'match($0,/CMSSW_.*/){print substr($0,RSTART+6,1)}'`
-  echo " --> recovered CMSSW version: "${CMSSWVERM}
+  CMSSWSUBVERM=`echo ${CMSSWDIR} | awk 'match($0,/CMSSW_.*/){print substr($0,RSTART+8,1)}'`
+  CMSSWSUBVERM=${CMSSWVERM}${CMSSWSUBVERM}
+  echo " --> recovered CMSSW version: "${CMSSWSUBVERM}
+
 else
   if [ ! "${imode}" = "GRID" ]; then
     echo " <E> CMSSW directory does not exist: "${CMSSWDIR}
@@ -529,6 +532,19 @@ EOF
   fi
 
   scramopt=" -f "${cnffile}
+elif [ ${CMSSWSUBVERM} -le 21 ]; then
+
+#FIX FOR CMSSW_2_1_X
+sherpa_xml_file="${CMSSWDIR}/config/toolbox/slc4_ia32_gcc345/tools/selected/sherpa.xml"
+  cd ${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/
+  sed -e 's:"SHERPA_BASE"/>:"SHERPA_BASE" value="'${SHERPADIR}'"/>:' < ${toolshfile} > ${sherpa_xml_file}
+  if [ ${CMSSWVERM} -lt 2 ]; then
+  mv ${sherpa_xml_file} ${sherpa_xml_file}.bak
+  sed -e 's:/>:>:' < ${sherpa_xml_file}.bak > ${sherpa_xml_file}
+ fi
+  echo " <I> using CMSSW_2_1_X  --> write file:" 
+  echo " <I> "${sherpa_xml_file}
+#FIX FOR CMSSW_2_1_X
 else
   echo " <W> no configuration file found, registering components,..."
   scramopt=""
