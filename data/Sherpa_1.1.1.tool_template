@@ -1,0 +1,62 @@
+<Tool name="Sherpa" version="1.1.1">
+<info url="http://projects.hepforge.org/sherpa/dokuwiki/doku.php"/>
+<lib name="SherpaMain"/>
+<lib name="AhadicDecays"/>
+<lib name="AhadicFormation"/>
+<lib name="AhadicMain"/>
+<lib name="AhadicTools"/>
+<lib name="AmegicPSGen"/>
+<lib name="Amegic"/>
+<lib name="AmisicModel"/>
+<lib name="Amisic"/>
+<lib name="AmisicTools"/>
+<lib name="Amplitude"/>
+<lib name="AnalysisDetector"/>
+<lib name="Analysis"/>
+<lib name="AnalysisTools"/>
+<lib name="AnalysisTriggers"/>
+<lib name="ApacicMain"/>
+<lib name="ApacicShowers"/>
+<lib name="Beam"/>
+<lib name="DUPDF"/>
+<lib name="ExtraXS2_2"/>
+<lib name="ExtraXSModel"/>
+<lib name="ExtraXS"/>
+<lib name="GRV"/>
+<lib name="HadronsCurrents"/>
+<lib name="HadronsMain"/>
+<lib name="HadronsMEs"/>
+<lib name="HadronsPSs"/>
+<lib name="HelicitiesMain"/>
+<lib name="LHAPDFSherpa"/>
+<lib name="LundTools"/>
+<lib name="ModelDecays"/>
+<lib name="ModelInteractions"/>
+<lib name="ModelMain"/>
+<lib name="Observables"/>
+<lib name="PDF"/>
+<lib name="Phasespace"/>
+<lib name="PhotonsMain"/>
+<lib name="PhotonsMEs"/>
+<lib name="PhotonsPhaseSpace"/>
+<lib name="PhotonsTools"/>
+<lib name="Remnant"/>
+<lib name="SherpaInitialization"/>
+<lib name="SherpaPerturbativePhysics"/>
+<lib name="SherpaSingleEvents"/>
+<lib name="SherpaSoftPhysics"/>
+<lib name="SherpaTools"/>
+<lib name="String"/>
+<lib name="Sudakov"/>
+<lib name="ToolsMath"/>
+<lib name="ToolsOrg"/>
+<lib name="ToolsPhys"/>
+<lib name="Zfunctions"/>
+<client>
+<Environment name="SHERPA_BASE"/>
+<Environment name="BINDIR" default="$SHERPA_BASE/bin"/>
+<Environment name="LIBDIR" default="$SHERPA_BASE/lib/SHERPA-MC"/>
+<Environment name="INCLUDE" default="$SHERPA_BASE/include"/>
+</client>
+</tool>
+

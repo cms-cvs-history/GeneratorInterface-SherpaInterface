@@ -1,0 +1,20 @@
+process RunSherpa = {
+  	 
+ untracked PSet maxEvents = {untracked int32 input = 100}
+
+ service = RandomNumberGeneratorService
+   {
+      untracked uint32 sourceSeed = 98765
+   }
+
+ include "GeneratorInterface/SherpaInterface/test/sherpa_MYSHERPAPROCESS.cfi"
+ replace SherpaSource.firstRun = 1
+  
+ module GEN = PoolOutputModule
+   {
+      untracked string fileName = "Sherpa_MYSHERPAPROCESS_GEN.root"
+   }
+
+ endpath e = { GEN }
+
+}

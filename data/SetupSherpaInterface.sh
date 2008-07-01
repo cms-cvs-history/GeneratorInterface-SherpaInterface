@@ -9,8 +9,8 @@
 #               SHERPA patches (optional)
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/05/14
-#  version:     1.7
+#  date:        2008/06/13
+#  version:     1.9
 #
 
 
@@ -21,13 +21,13 @@
 
 function print_help() {
     echo "" && \
-    echo "SetupSherpaInterface version 1.7" && echo && \
+    echo "SetupSherpaInterface version 1.9" && echo && \
     echo "options: -i  path       installation directory for SHERPA" && \
     echo "                         -> ( "${instdir}" )" && \
     echo "         -v  version    SHERPA version ("${SHERPAVER}")" && \
     echo "         -s  path       location of necessary shell scripts" && \
     echo "                         -> ( "${scrpth}" )" && \
-    echo "         -p  path       location of required SHERPA patches" && \
+    echo "         -p  path       location of required SHERPA patches/fixes" && \
     echo "                         -> ( "${patdir}" )" && \
     echo "         -d  path       location of the CMSSW directory" && \
     echo "                         -> ( "${cmsswd}" )" && \
@@ -36,6 +36,8 @@ function print_help() {
     echo "         -f  filename   name of SHERPA interface tarball ( "${shif}" )" && \
     echo "         -o  option(s)  expert options ( "${xopt}" )" && \
     echo "         -m  mode       running mode ['LOCAL','CRAB','GRID'] ( "${imode}" )" && \
+    echo "         -W  location   (optional) location of SHERPA tarball ( "${SHERPAWEBLOCATION}" )" && \
+    echo "         -S  filename   (optional) file name of SHERPA tarball ( "${SHERPAFILE}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -99,8 +101,8 @@ HEPMC2VER="2.01.10"                               # HepMC2 version
 #LHAPDFVER="5.2.3"                                 # LHAPDF version
 LHAPDFVER="5.3.1"                                 # LHAPDF version
 
-SHERPAWEBLOCATION=" "      # (web)location of SHERPA tarball
-SHERPAFILE=" "             # file name of SHERPA tarball
+SHERPAWEBLOCATION=""      # (web)location of SHERPA tarball
+SHERPAFILE=""             # file name of SHERPA tarball
 
 ###CRAB stuff
 imode="LOCAL"                                     # operation mode (local/CRAB installation/GRID)
@@ -172,7 +174,7 @@ fi
 echo " SHERPA interface setup (local/CRAB/GRID)"
 echo "  -> SHERPA installation directory: '"${instdir}"'"
 echo "  -> SHERPA version: '"${SHERPAVER}"'"
-echo "  -> location of SHERPA patches: '"${scrpth}"'"
+echo "  -> location of SHERPA patches/fixes: '"${patdir}"'"
 echo "  -> script path: '"${scrpth}"'"
 if [ ! "${imode}" = "GRID" ]; then
   echo "  -> location of CMSSW: '"${cmsswd}"'"
@@ -209,6 +211,7 @@ if [ "${imode}" = "CRAB" ]; then                  # define CMSSW properties
   export MSI=${HOME}                              # main installation directory for SHERPA,...
   SCRIPTPATH=${HDIR}                              # location of scripts
   SHPATPATH=${HDIR}                               # location of SHERPA patches
+  SHFIXPATH=${HDIR}                               # location of SHERPA fixes
   export CMSSWDIR=${HDIR}                         # path to CMSSW release
   SHERPAPRCLOCATION=${dataloc}                    # location of SHERPA libraries & cross sections
   SHERPAPROCESS=${dataset}                        # SHERPA process specifier
@@ -220,6 +223,7 @@ elif [ "${imode}" = "LOCAL" ]; then
   export MSI=${instdir}                           # main installation directory for SHERPA,...
   SCRIPTPATH=${scrpth}                            # location of scripts
   SHPATPATH=${patdir}                             # location of SHERPA patches
+  SHFIXPATH=${patdir}                             # location of SHERPA fixes
   export CMSSWDIR=${cmsswd}                       # path to CMSSW release
   SHERPAINTERFACELOCATION=${ship}                 # location SHERPA interface tarball
   SHERPAINTERFACEFILE=${shif}                     # name of SHERPA interface tarball
@@ -227,6 +231,7 @@ elif [ "${imode}" = "GRID" ]; then
   export MSI=${instdir}                           # main installation directory for SHERPA,...
   SCRIPTPATH=${scrpth}                            # location of scripts
   SHPATPATH=${patdir}                             # location of SHERPA patches
+  SHFIXPATH=${patdir}                             # location of SHERPA fixes
   export CMSSWDIR=${cmsswd}                       # path to CMSSW release [DUMMY]
 fi
 
@@ -375,17 +380,17 @@ if [ "${FORCESHERPA}" = "TRUE" ]; then
   fi
   MMTMP=`echo ${OINST} | grep -c "F"`
   if [ ${MMTMP} -gt 0 ]; then # apply extra fixes (LHAPDF in CMSSW,...) ?
-    fixflag=" -F "
+    fixflag=" -F "${SHFIXPATH}
   fi
   MMTMP=`echo ${OINST} | grep -c "M"`
   if [ ${MMTMP} -gt 0 ]; then # use multithreading ?
     mttflag=" -M "
   fi
 ###
-  if [ ! "${SHERPAWEBLOCATION}" = " " ]; then
+  if [ ! "${SHERPAWEBLOCATION}" = "" ]; then
     locflg=" -W "${SHERPAWEBLOCATION}
   fi
-  if [ ! "${SHERPAFILE}" = " " ]; then
+  if [ ! "${SHERPAFILE}" = "" ]; then
     filflg=" -S "${SHERPAFILE}
   fi
 ###
@@ -407,8 +412,19 @@ if [ "${FORCESHERPA}" = "TRUE" ]; then
       rm -rf ${SHERPADIR}
     fi
     echo " <I> installing SHERPA"
-    echo ${SCRIPTPATH}/${shshifile} -v ${SHERPAVER} -d ${MSI} ${pflag} ${hflag} ${lflag} ${fflag} ${fixflag} ${mttflag} ${locflg} ${filflg}
-    ${SCRIPTPATH}/${shshifile} -v ${SHERPAVER} -d ${MSI} ${pflag} ${hflag} ${lflag} ${fflag} ${fixflag} ${mttflag} ${locflg} ${filflg}
+    allflags=" -v "${SHERPAVER}" -d "${MSI}" "${pflag}" "${hflag}" "${lflag}" "${fflag}" "${fixflag}" "${mttflag}" "${locflg}" "${filflg}
+    if [ "${imode}" = "LOCAL" ]; then
+      echo ${SCRIPTPATH}/${shshifile} ${allflags} -L
+      ${SCRIPTPATH}/${shshifile} ${allflags} -L
+    elif [ "${imode}" = "CRAB" ]; then
+      echo ${SCRIPTPATH}/${shshifile} ${allflags} -L
+      ${SCRIPTPATH}/${shshifile} ${allflags} -L
+    elif [ "${imode}" = "GRID" ]; then
+      echo ${SCRIPTPATH}/${shshifile} ${allflags}
+      ${SCRIPTPATH}/${shshifile} ${allflags}
+    fi
+#    echo ${SCRIPTPATH}/${shshifile} -v ${SHERPAVER} -d ${MSI} ${pflag} ${hflag} ${lflag} ${fflag} ${fixflag} ${mttflag} ${locflg} ${filflg}
+#         ${SCRIPTPATH}/${shshifile} -v ${SHERPAVER} -d ${MSI} ${pflag} ${hflag} ${lflag} ${fflag} ${fixflag} ${mttflag} ${locflg} ${filflg}
   else
     echo " <I> SHERPA already installed"
   fi
