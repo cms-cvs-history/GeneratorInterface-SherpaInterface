@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  file:        SetupSherpaInterface.sh
+#  file:        SetupSherpaInterface_new.sh
 #  description: BASH script for the LOCAL installation of the SHERPA MC generator,
 #               HepMC2 & LHAPDF (optional) and the CMSSW SHERPA interface
 #  uses:        install_sherpa.sh
@@ -9,8 +9,8 @@
 #               SHERPA patches (optional)
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/08/19
-#  version:     2.0
+#  date:        2008/09/10
+#  version:     2.1
 #
 
 
@@ -21,7 +21,7 @@
 
 function print_help() {
     echo "" && \
-    echo "SetupSherpaInterface version 2.0" && echo && \
+    echo "SetupSherpaInterface version 2.1" && echo && \
     echo "options: -i  path       installation directory for SHERPA" && \
     echo "                         -> ( "${instdir}" )" && \
     echo "         -v  version    SHERPA version ("${SHERPAVER}")" && \
@@ -92,15 +92,8 @@ function file_get() {
 HDIR=`pwd`
 
 # set installation versions
-#SHERPAVER="1.0.11"                                # SHERPA version
-#SHERPAVER="1.1.0"                                 # SHERPA version
-#SHERPAVER="1.1.1"                                 # SHERPA version
 SHERPAVER="1.1.2"                                 # SHERPA version
-#HEPMC2VER="2.00.02"                               # HepMC2 version
-#HEPMC2VER="2.01.08"                               # HepMC2 version
-#HEPMC2VER="2.01.10"                               # HepMC2 version
 HEPMC2VER="2.03.09"                               # HepMC2 version
-#LHAPDFVER="5.2.3"                                 # LHAPDF version
 LHAPDFVER="5.3.1"                                 # LHAPDF version
 
 SHERPAWEBLOCATION=""      # (web)location of SHERPA tarball
@@ -115,7 +108,8 @@ if [ "${imode}" = "LOCAL" ]; then
   patdir=${HDIR}                                  # location of required SHERPA patches
   cmsswd=${HDIR}/CMSSW_X_Y_Z                      # location of the CMSSW directory
   ship=${HDIR}                                    # location of SHERPA interface tarball
-  shif=SherpaInterface.tgz                        # name of SHERPA interface tarball
+#  shif=SherpaInterface.tgz                        # name of SHERPA interface tarball
+  shif=SherpaInterface_new.tgz                        # name of SHERPA interface tarball
   xopt="SOpOhOlOfOF"                              # expert options
 #  xopt=""
 elif [ "${imode}" = "CRAB" ]; then
@@ -200,14 +194,10 @@ SHIFPTH2="SherpaInterface"                        # subdirectory for the SHERPA 
 shshifile="install_sherpa.sh"                     # script for SHERPA installation
 shhmifile="install_hepmc2.sh"                     # script for HepMC2 installation
 shlhifile="install_lhapdf.sh"                     # script for LHAPDF installation
-# TOOL definition files necessary for the SHERPA interface
-##toolshfile="Sherpa.tool"
-toolshfile="Sherpa_"${SHERPAVER}".tool"
-toolhmfile="Hepmc.tool"
-toollhfile="Lhapdf.tool"
-xmlshfile="sherpa.xml"
-xmlhmfile="hepmc.xml"
-xmllhfile="lhapdf.xml"
+# XML TOOL definition files necessary for the SHERPA interface
+toolshfile="sherpa.xml"
+toolhmfile="hepmc.xml"
+toollhfile="lhapdf.xml"
 
 
 chmod u+x *.sh                                    # make scripts executable again
@@ -435,8 +425,6 @@ if [ "${FORCESHERPA}" = "TRUE" ]; then
       echo ${SCRIPTPATH}/${shshifile} ${allflags}
       ${SCRIPTPATH}/${shshifile} ${allflags}
     fi
-#    echo ${SCRIPTPATH}/${shshifile} -v ${SHERPAVER} -d ${MSI} ${pflag} ${hflag} ${lflag} ${fflag} ${fixflag} ${mttflag} ${locflg} ${filflg}
-#         ${SCRIPTPATH}/${shshifile} -v ${SHERPAVER} -d ${MSI} ${pflag} ${hflag} ${lflag} ${fflag} ${fixflag} ${mttflag} ${locflg} ${filflg}
   else
     echo " <I> SHERPA already installed"
   fi
@@ -478,141 +466,82 @@ else
   cd ${CMSSWDIR}
 fi
 
-#####ls -C1 *.so.0.0.0 | cut -f1 -d"." | sed -e 's:lib:<lib name=":' | sed -e 's:$:"/>:'
 if [ "${imode}" = "LOCAL" ]; then
-  cd ${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data
-#
-  if [ ${va} -ge 2 ] && [ ${vb} -ge 1 ]; then
-    toolshfile=${xmlshfile}
-    toolhmfile=${xmlhmfile}
-    toollhfile=${xmllhfile}
-  fi
-#
-  if [ "${FORCESHERPA}" = "TRUE" ]; then # substitute correct SHERPA version in tool definition file 'Sherpa'
-    echo " <I> substituting correct SHERPA version in file 'Sherpa'"
-    cp ${toolshfile}_template ${toolshfile}
-    sed -e 's:name="Sherpa" version=".*:name="Sherpa" version="'${SHERPAVER}'">:' < ${toolshfile} > ${toolshfile}.tmp
-    mv ${toolshfile}.tmp ${toolshfile}
-  fi 
-  if [ "${FORCEHEPMC2}" = "TRUE" ]; then # substitute correct HepMC2 version in tool definition file 'Hepmc2'
-    echo " <I> substituting correct HepMC2 version in file 'Hepmc'"
-    cp ${toolhmfile}_template ${toolhmfile}
-    sed -e 's:name="HepMC" version=".*:name="HepMC" version="'${HEPMC2VER}'">:' < ${toolhmfile} > ${toolhmfile}.tmp
-    mv ${toolhmfile}.tmp ${toolhmfile}
-  fi
-  if [ "${FORCELHAPDF}" = "TRUE" ]; then # substitute correct LHAPDF version in tool definition file 'Lhapdf'
-    echo " <I> substituting correct LHAPDF version in file 'Lhapdf'"
-    cp ${toollhfile}_template ${toollhfile}
-    sed -e 's:name="Lhapdf" version=".*:name="Lhapdf" version="'${LHAPDFVER}'">:' < ${toollhfile} > ${toollhfile}.tmp
-    mv ${toollhfile}.tmp ${toollhfile}
-  fi
-  cd -
-fi
+  ddir=${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data
+  xmldir=${CMSSWDIR}/config/toolbox/slc4_ia32_gcc345/tools/selected
+  cd ${ddir}
 
-# check existence of CMSSW standalone config file
-cnffile=${CMSSWDIR}/config/site/tools-STANDALONE.conf
-if [ -e ${cnffile} ]; then
-  echo " <I> configuration file exists, registering components (SHERPA, HepMC2, LHAPDF)"
-
-# insert SHERPA, HepMC2, LHAPDF information into tools-STANDALONE.conf
-  if [ "${FORCESHERPA}" = "TRUE" ]; then
-    if [ `grep -c -i sherpa ${cnffile}` -eq 0 ]; then
-      cat >> ${cnffile} << EOF
-TOOL:sherpa:
-  +SHERPA_BASE:${SHERPADIR}
-  +PATH:${SHERPADIR}/bin
-  +LIBDIR:${SHERPADIR}/lib/SHERPA-MC
-  +INCLUDE:${SHERPADIR}/include
-EOF
-    fi
-  fi
-  if [ "${FORCEHEPMC2}" = "TRUE" ]; then
-   if [ `grep -c -i hepmc ${cnffile}` -eq 0 ]; then
-    cat >> ${cnffile} << EOF
-TOOL:hepmc:
-  +HEPMC_BASE:${HEPMC2DIR}
-  +LIBDIR:${HEPMC2DIR}/lib
-  +INCLUDE:${HEPMC2DIR}/include
-EOF
-   fi
-  fi
-  if [ "${FORCELHAPDF}" = "TRUE" ]; then
-   if [ `grep -c -i lhapdf ${cnffile}` -eq 0 ]; then
-    cat >> ${cnffile} << EOF
-TOOL:lhapdf:
-  +LHAPDF_BASE:${LHAPDFDIR}
-  +PATH:${LHAPDFDIR}/bin
-  +LIBDIR:${LHAPDFDIR}/lib
-EOF
-   fi
+  if [ "${FORCESHERPA}" = "TRUE" ]; then # create SHERPA tool definition XML file
+    echo " <I> creating Sherpa tool definition XML file"
+    touch ${toolshfile}
+    echo "  <tool name=\"Sherpa\" version=\""${SHERPAVER}"\">" >> ${toolshfile}
+    for lib in `cd ${SHERPADIR}/lib/SHERPA-MC; ls -C1 *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${ddir}`; do
+      echo "    <lib name=\""${lib}"\"/>" >> ${toolshfile}
+    done
+    echo "    <client>" >> ${toolshfile}
+    echo "      <Environment name=\"SHERPA_BASE\" value=\""${SHERPADIR}"\"/>" >> ${toolshfile}
+    echo "      <Environment name=\"BINDIR\" default=\"\$SHERPA_BASE/bin\"/>" >> ${toolshfile}
+    echo "      <Environment name=\"LIBDIR\" default=\"\$SHERPA_BASE/lib/SHERPA-MC\"/>" >> ${toolshfile}
+    echo "      <Environment name=\"INCLUDE\" default=\"\$SHERPA_BASE/include\"/>" >> ${toolshfile}
+    echo "    </client>" >> ${toolshfile}
+    echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include\" type=\"path\"/>" >> ${toolshfile}
+    echo "    <use name=\"HepMC\"/>" >> ${toolshfile}
+    echo "    <use name=\"lhapdf\"/>" >> ${toolshfile}
+    echo "  </tool>" >> ${toolshfile}
+    cp ${toolshfile} ${xmldir}
   fi
 
-  scramopt=" -f "${cnffile}
-else
-  echo " <W> no configuration file found, registering components,..."
-  scramopt=""
+  if [ "${FORCEHEPMC2}" = "TRUE" ]; then # create HepMC tool definition XML file
+    echo " <I> creating HepMC tool definition XML file"
+    touch ${toolhmfile}
+    echo "  <tool name=\"HepMC\" version=\""${HEPMC2VER}"\">" >> ${toolhmfile}
+    for lib in `cd ${HEPMC2DIR}/lib; ls -C1 *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${ddir}`; do
+      echo "    <lib name=\""${lib}"\"/>" >> ${toolhmfile}
+    done
+    echo "    <client>" >> ${toolhmfile}
+    echo "      <Environment name=\"HEPMC_BASE\" value=\""${HEPMC2DIR}"\"/>" >> ${toolhmfile}
+    echo "      <Environment name=\"LIBDIR\" default=\"\$HEPMC_BASE/lib\"/>" >> ${toolhmfile}
+    echo "      <Environment name=\"INCLUDE\" default=\"\$HEPMC_BASE/include\"/>" >> ${toolhmfile}
+    echo "    </client>" >> ${toolhmfile}
+    echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$HEPMC_BASE/include\" type=\"path\"/>" >> ${toolhmfile}
+    echo "    <use name=\"CLHEP\"/>" >> ${toolhmfile}
+    echo "  </tool>" >> ${toolhmfile}
+    cp ${toolhmfile} ${xmldir}
+  fi
+
+  if [ "${FORCELHAPDF}" = "TRUE" ]; then # create LHAPDF tool definition XML file
+    echo " <I> creating LHAPDF tool definition XML file"
+    touch ${toollhfile}
+    echo "  <tool name=\"lhapdf\" version=\""${LHAPDFVER}"\">" >> ${toollhfile}
+    for lib in `cd ${LHAPDFDIR}/lib; ls -C1 *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${ddir}`; do
+      echo "    <lib name=\""${lib}"\"/>" >> ${toollhfile}
+    done
+    echo "    <client>" >> ${toollhfile}
+    echo "      <Environment name=\"LHAPDF_BASE\" value=\""${LHAPDFDIR}"\"/>" >> ${toollhfile}
+    echo "      <Environment name=\"LIBDIR\" default=\"\$LHAPDF_BASE/lib\"/>" >> ${toollhfile}
+    echo "      <Environment name=\"LHAPATH\" default=\"\$LHAPDF_BASE/PDFsets\"/>" >> ${toollhfile}
+    echo "    </client>" >> ${toollhfile}
+    echo "    <runtime name=\"LHAPATH\" value=\"\$LHAPDF_BASE/PDFsets\" type=\"path\"/>" >> ${toollhfile}
+    echo "    <use name=\"f77compiler\"/>" >> ${toollhfile}
+    echo "  </tool>" >> ${toollhfile}
+    cp ${toollhfile} ${xmldir}
+  fi
+
+  cd ${CMSSWDIR}
 fi
 
 if [ ! "${imode}" = "GRID" ]; then
-if [ "${FORCESHERPA}" = "TRUE" ]; then # register SHERPA as a tool
-  cd ${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/
-  sed -e 's:"SHERPA_BASE"/>:"SHERPA_BASE" value="'${SHERPADIR}'"/>:' < ${toolshfile} > ${toolshfile}.bak
-  if [ ${CMSSWVERM} -lt 2 ]; then
-    mv ${toolshfile}.bak ${toolshfile}
-    sed -e 's:/>:>:' < ${toolshfile} > ${toolshfile}.bak
+  scramopt=""
+  if [ "${FORCESHERPA}" = "TRUE" ]; then
+    scramv1 setup ${scramopt} sherpa
   fi
-  mv ${toolshfile}.bak ${toolshfile}
-### FIXME (in CMSSW, for unknown reasons 'LHAPDF' is 'lhapdf'...)
-#  sed -e 's:LHAPDF":lhapdf":' < ${toolshfile} > ${toolshfile}.bak
-#  mv ${toolshfile}.bak ${toolshfile}
-### FIXME
-  scrampar=""
-  if [ ${va} -ge 2 ] && [ ${vb} -ge 1 ]; then
-    cp ${toolshfile} ${CMSSWDIR}/config/toolbox/slc4_ia32_gcc345/tools/selected/
-  else
-    scrampar=${SHERPAVER}" "file:${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/${toolshfile}
+  if [ "${FORCEHEPMC2}" = "TRUE" ]; then
+    scramv1 setup ${scramopt} hepmc
   fi
-  cd -
-  scramv1 setup ${scramopt} sherpa ${scrampar}
+  if [ "${FORCELHAPDF}" = "TRUE" ]; then
+    scramv1 setup ${scramopt} lhapdf
+  fi
 fi
-
-if [ "${FORCEHEPMC2}" = "TRUE" ]; then # register HepMC2 as a tool
-  cd ${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/
-  sed -e 's:"HEPMC_BASE"/>:"HEPMC_BASE" value="'${HEPMC2DIR}'"/>:' < ${toolhmfile} > ${toolhmfile}.bak
-  if [ ${CMSSWVERM} -lt 2 ]; then
-    mv ${toolhmfile}.bak ${toolhmfile}
-    sed -e 's:/>:>:' < ${toolhmfile} > ${toolhmfile}.bak
-  fi
-  mv ${toolhmfile}.bak ${toolhmfile}
-  scrampar=""
-  if [ ${va} -ge 2 ] && [ ${vb} -ge 1 ]; then
-    cp ${toolhmfile} ${CMSSWDIR}/config/toolbox/slc4_ia32_gcc345/tools/selected/
-  else
-    scrampar=${HEPMC2VER}" "file:${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/${toolhmfile}
-  fi
-  cd -
-  scramv1 setup ${scramopt} hepmc ${scrampar}
-fi
-
-if [ "${FORCELHAPDF}" = "TRUE" ]; then # register LHAPDF as a tool
-  cd ${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/
-  sed -e 's:"LHAPDF_BASE"/>:"LHAPDF_BASE" value="'${LHAPDFDIR}'"/>:' < ${toollhfile} > ${toollhfile}.bak
-  if [ ${CMSSWVERM} -lt 2 ]; then
-    mv ${toollhfile}.bak ${toollhfile}
-    sed -e 's:/>:>:' < ${toolslfile} > ${toollhfile}.bak
-  fi
-  mv ${toollhfile}.bak ${toollhfile}
-  scrampar=""
-  if [ ${va} -ge 2 ] && [ ${vb} -ge 1 ]; then
-    cp ${toollhfile} ${CMSSWDIR}/config/toolbox/slc4_ia32_gcc345/tools/selected/
-  else
-    scrampar=${LHAPDFVER}" "file:${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/${toollhfile}
-  fi
-  cd -
-  scramv1 setup ${scramopt} lhapdf ${scrampar}
-fi
-fi # check for 'GRID' mode
-
 
 
 
@@ -631,7 +560,6 @@ if [ "${imode}" = "CRAB" ]; then         # generate 'external(/...)' subdirector
   done
   cd -
 
-#  cd ${CMSSWDIR}/src/${SHIFPTH1}/${SHIFPTH2}/data/${SHERPAPROCESS}/Run
   cd ${CMSSWDIR}
   mkdir SherpaRun
   cd SherpaRun
