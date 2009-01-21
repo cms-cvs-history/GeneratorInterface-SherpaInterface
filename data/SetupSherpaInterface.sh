@@ -313,13 +313,14 @@ if [ "${FORCESHERPA}" = "TRUE" ]; then
 
 # evaluate installation options
   ALLFLAGS=""
-  ALLFLAGS=${ALLFLAGS}" -v "${SHERPAVER}
   ALLFLAGS=${ALLFLAGS}" -d "${instdir}
-  ALLFLAGS=${ALLFLAGS}" -C "${LVLCLEAN}
-  ALLFLAGS=${ALLFLAGS}" -X "                                                                  # create XML files for CMSSW override
-  ALLFLAGS=${ALLFLAGS}" -I "                                                                  # use configure/make/make install ?
+  ALLFLAGS=${ALLFLAGS}" -v "${SHERPAVER}
   ALLFLAGS=${ALLFLAGS}" -m "${HEPMC2VER}
-  ALLFLAGS=${ALLFLAGS}" -l "${LHAPDFVER}" -L \"-l\""
+  ALLFLAGS=${ALLFLAGS}" -l "${LHAPDFVER}" -L -l"
+  ALLFLAGS=${ALLFLAGS}" -C "${LVLCLEAN}
+  ALLFLAGS=${ALLFLAGS}" -I "                                                                  # use configure/make/make install ?
+  ALLFLAGS=${ALLFLAGS}" -P "                                                                  # softlink PDFsets ?
+  ALLFLAGS=${ALLFLAGS}" -X "                                                                  # create XML files for CMSSW override
   if [ `echo ${OINST} | grep -c "p"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -p "${patdir};    fi # install SHERPA patches?
   if [ `echo ${OINST} | grep -c "F"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -F "${patdir};    fi # apply extra SHERPA fixes ?
   if [ `echo ${OINST} | grep -c "f"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -f";              fi # use 32-bit compatibility mode ?
