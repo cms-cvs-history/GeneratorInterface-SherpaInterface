@@ -1,5 +1,5 @@
 /*
- *  $Revision: 1.4 $
+ *  $Revision: 1.5 $
  *  
  *  Martin Niegel 
  *  niegel@cern.ch
@@ -22,7 +22,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandomEngine.h"
+//#include "CLHEP/Random/RandFlat.h"
 
 
 #include <iostream>
@@ -129,6 +130,9 @@ double CMS_RNG::Get(){
           "which is not present in the configuration file.  You must add the service\n"
           "in the configuration file or remove the modules that require it.";
    }
-   double rngNumber = RandFlat::shoot(rng->getEngine());
+//   double rngNumber = RandFlat::shoot(rng->getEngine());
+   CLHEP::HepRandomEngine& engine = rng->getEngine();
+   double rngNumber = engine.flat();
+//   std::cout << "rno: " << rngNumber << std::endl;
    return rngNumber;
 }
