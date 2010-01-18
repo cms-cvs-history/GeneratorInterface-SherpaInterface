@@ -10,8 +10,8 @@
 #               SHERPA fixes (optional)
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/01/05
-#  version:     2.3
+#  date:        2010/01/15
+#  version:     2.5
 #
 
 
@@ -22,7 +22,7 @@
 
 function print_help() {
     echo "" && \
-    echo "SetupSherpaInterface version 2.3" && echo && \
+    echo "SetupSherpaInterface version 2.4" && echo && \
     echo "options: -i  path       installation directory for SHERPA,..." && \
     echo "                         -> ( "${instdir}" )" && \
     echo "         -p  path       location of required SHERPA patches/fixes" && \
@@ -318,13 +318,16 @@ if [ "${FORCESHERPA}" = "TRUE" ]; then
   ALLFLAGS=${ALLFLAGS}" -m "${HEPMC2VER}
   ALLFLAGS=${ALLFLAGS}" -l "${LHAPDFVER}" -L -l"
   ALLFLAGS=${ALLFLAGS}" -C "${LVLCLEAN}
-  ALLFLAGS=${ALLFLAGS}" -I "                                                                  # use configure/make/make install ?
+#  ALLFLAGS=${ALLFLAGS}" -I "                                                                  # use configure/make/make install ?
   ALLFLAGS=${ALLFLAGS}" -P "                                                                  # softlink PDFsets ?
   ALLFLAGS=${ALLFLAGS}" -X "                                                                  # create XML files for CMSSW override
   if [ `echo ${OINST} | grep -c "p"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -p "${patdir};    fi # install SHERPA patches?
   if [ `echo ${OINST} | grep -c "F"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -F "${patdir};    fi # apply extra SHERPA fixes ?
   if [ `echo ${OINST} | grep -c "f"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -f";              fi # use 32-bit compatibility mode ?
   if [ `echo ${OINST} | grep -c "T"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -T";              fi # use multithreading ?
+  if [ `echo ${OINST} | grep -c "Z"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -Z";              fi # use multiple cores ?
+  if [ `echo ${OINST} | grep -c "K"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -K";              fi # keep source code ?
+  if [ `echo ${OINST} | grep -c "A"` -gt 0 ]; then ALLFLAGS=${ALLFLAGS}" -A";              fi # enable analysis ?
   if [ "${FLGDEBUG}" = "TRUE" ];              then ALLFLAGS=${ALLFLAGS}" -D";              fi
 ###
   if [ ! "${SHERPAWEBLOCATION}" = "" ]; then ALLFLAGS=${ALLFLAGS}" -W "${SHERPAWEBLOCATION}; fi
@@ -365,16 +368,22 @@ xmldir=${cmsswd}/config/toolbox/slc4_ia32_gcc345/tools/selected
 scramopt=""
 if [ "${imode}" = "LOCAL" ]; then
   if [ "${FORCELHAPDF}" = "TRUE" ]; then # apply LHAPDF tool definition XML file
-    cp ${HDIR}/${toollhfile} ${xmldir}/
-    scramv1 setup ${scramopt} lhapdf
+    toollhfile=`find ${HDIR} -type f -name lhapdf_*.xml`
+    echo "XMLFILE(LHAPDF): "$toollhfile
+#    cp ${HDIR}/${toollhfile} ${xmldir}/
+#    scramv1 setup ${scramopt} lhapdf
   fi
   if [ "${FORCEHEPMC2}" = "TRUE" ]; then # apply HepMC tool definition XML file
-    cp ${HDIR}/${toolhmfile} ${xmldir}/
-    scramv1 setup ${scramopt} hepmc
+    toolhmfile=`find ${HDIR} -type f -name hepmc_*.xml`
+    echo "XMLFILE(HEPMC2): "$toolhmfile
+#    cp ${HDIR}/${toolhmfile} ${xmldir}/
+#    scramv1 setup ${scramopt} hepmc
   fi
   if [ "${FORCESHERPA}" = "TRUE" ]; then # apply SHERPA tool definition XML file
-    cp ${HDIR}/${toolshfile} ${xmldir}/
-    scramv1 setup ${scramopt} sherpa
+    toolshfile=`find ${HDIR} -type f -name sherpa_*.xml`
+    echo "XMLFILE(SHERPA): "$toolshfile
+#    cp ${HDIR}/${toolshfile} ${xmldir}/
+#    scramv1 setup ${scramopt} sherpa
   fi
 fi
 
