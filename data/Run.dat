@@ -1,14 +1,15 @@
 (run){
   EVENTS = 200;
   ANALYSIS = 0;
+  EVENT_MODE = HepMC
 }(run)
 
 (beam){
   BEAM_1          = 2212
-  BEAM_ENERGY_1   = 7000.
+  BEAM_ENERGY_1   = 5000.
 
   BEAM_2          = 2212
-  BEAM_ENERGY_2   = 7000.
+  BEAM_ENERGY_2   = 5000.
 }(beam)
 
 (processes){
