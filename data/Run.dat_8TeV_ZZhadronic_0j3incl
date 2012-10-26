@@ -5,11 +5,12 @@
   ACTIVE[24]=0
   ACTIVE[25]=0
   ERROR=0.02
-##  MASSIVE[11]=1
-##  MASSIVE[13]=1
-##  MASSIVE[15]=1
-##  # costruct container for ease
-##  PARTICLE_CONTAINER 991[m:-1] leptons 11 -11 13 -13 15 -15;
+  MASSIVE[11]=1
+  MASSIVE[13]=1
+  MASSIVE[15]=1
+  # costruct container for ease
+  PARTICLE_CONTAINER 991[m:-1] leptons 11 -11 13 -13 15 -15;
+  PARTICLE_CONTAINER 9923[m:-1] Zgamma 23 22;
 # avoid comix re-init after runcard modification
 WRITE_MAPPING_FILE 3;
 }(run)
@@ -20,22 +21,19 @@ WRITE_MAPPING_FILE 3;
 }(beam)
 
 (processes){
-  # with massive leptons cannot map processes, write out explicitly
-  Process 93 93 -> 92 92 92 92 93{3};
+  Process 93 93 -> 9923[a] 9923[b] 93{3};
+  Decay 9923[a] -> 94 94
+  Decay 9923[b] -> 94 94
   Integration_Error 0.05 {6,7}
   Order_EW 4
   CKKW sqr(20/E_CMS)
-  Scales LOOSE_METS{MU_F2}{MU_R2} {7}
+  Scales LOOSE_METS{MU_F2}{MU_R2} {6,7}
+  Integration_Error 0.05 {5,6,7}
   End process;
-
 }(processes)
 
 (selector){
-  # minimum mass cut on electron for num. stability
-  Mass  11 -11  0.1  E_CMS
-  # minimum lepton pt and eta
-##  "PT" 991 5.0,E_CMS:5.0,E_CMS [PT_UP]
-##  "Eta" 991 -2.7,2.7:-2.7,2.7 [PT_UP]
+  DecayMass 9923 7.0 E_CMS
   "PT" 90 5.0,E_CMS:5.0,E_CMS [PT_UP]
   "Eta" 90 -2.7,2.7:-2.7,2.7 [PT_UP]
 }(selector)
